@@ -1,0 +1,42 @@
+pipeline{
+    agent any
+    environment {
+      DOCKER_TAG = getVersion()
+    }
+
+    stages{
+        stage('SCM'){
+            steps{
+                git 'https://github.com/Sudheerkunda/dockeransiblejenkins'
+            }
+        }
+        stage('Maven-build'){
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        stage('docker-build'){
+            steps{
+                sh "docker build . -t sudheerkunda/tomcatapp:${DOCKER_TAG}"
+            }
+        }
+        stage('docker-push'){
+            steps{
+                withCredentials([string(credentialsId: 'docker-cred', variable: 'dockerhubpwd')]) {
+                sh "docker login -u sudheerkunda -p ${dockerhubpwd}"
+                 }
+                sh "docker push sudheerkunda/tomcatapp:${DOCKER_TAG}"
+            }
+            stage('docker-deploy'){
+            steps{
+                ansiblePlaybook credentialsId: 'tomcat', disableHostKeyChecking: true, extras: "-e DOCKER_TAG=${DOCKER_TAG}", installation: 'ansible', inventory: 'dev.inv', playbook: 'deploy-docker2.yml'
+            }
+        }
+        }
+    }
+}
+
+def getVersion(){
+    def commitHash = sh returnStdout: true, script: 'git rev-parse --short HEAD'
+    return commitHash
+}
