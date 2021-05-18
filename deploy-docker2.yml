@@ -19,7 +19,7 @@
         enabled: yes
 
     - name: docker-py
-      yum: 
+      pip: 
         name: docker-py
         state: present
 
