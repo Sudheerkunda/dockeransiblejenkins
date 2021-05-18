@@ -7,6 +7,17 @@
         name: python-pip
         state: present
 
+    - name: insall docker
+      yum:
+        name: docker
+        state: present
+
+    - name: start the docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
     - name: docker-py
       yum: 
         name: docker-py
