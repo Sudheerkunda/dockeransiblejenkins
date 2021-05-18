@@ -26,7 +26,7 @@
     - name: start container
       docker_container:
         name: tomcatapp
-        image: "sudheerkunda/tomcatapp:'${{DOCKER_TAG}}'"
+        image: "sudheerkunda/tomcatapp:{{DOCKER_TAG}}"
         state: started
         published_ports:
           - 0.0.0.0:8080:8080
